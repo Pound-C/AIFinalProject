@@ -426,24 +426,28 @@ totalfeat = []
 with open("PhishingLink\\Blacklist.txt") as black:
     black_list = black.readlines()
 
-for i in black_list[:20000]:
+for idx, i in enumerate(black_list[:20000]):
     urlfeat = extract_url_features(i.strip())
     Htmlfeat = extract_full_feature_set(i.strip())
     Exfeat = extract_external_features(i.strip())
     result = {"isPhishing": True}
     totalfeat += [{**urlfeat, **Htmlfeat, **Exfeat, **result}]
-print("blacklist added")
+    if idx % 100 == 0:
+        print(f"[+] Processed black {idx} lines")
+print("blacklist done")
 
 with open("PhishingLink\\Whitelist.txt") as white:
     white_list = white.readlines()
 
-for i in white_list[:20000]:
+for idx, i in enumerate(white_list[:20000]):
     urlfeat = extract_url_features(i.strip())
     Htmlfeat = extract_full_feature_set(i.strip())
     Exfeat = extract_external_features(i.strip())
     result = {"isPhishing": False}
     totalfeat += [{**urlfeat, **Htmlfeat, **Exfeat, **result}]
-print("whitelist added")
+    if idx % 100 == 0:
+        print(f"[+] Processed white {idx} lines")
+print("whitelist done")
 if totalfeat:
     with open(
         "PhishingLink\\FeaturesColumn.csv", mode="w", newline="", encoding="utf-8"
