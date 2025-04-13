@@ -18,3 +18,16 @@ requests.exceptions.HTTPError: 503 Server Error: Service Unavailable for url: ht
 2025-04-13 00:00:07,729 - INFO - No new domains to add to Whitelist.
 2025-04-13 00:00:07,730 - INFO - Appended 871 total new URLs to Blacklist
 2025-04-13 12:18:56,888 - INFO - Tranco Crashes Today
+2025-04-13 13:40:07,590 - INFO - OpenPhish: 463 new URLs
+2025-04-13 13:40:08,209 - INFO - PhishStats: 272 new URLs
+2025-04-13 13:40:09,952 - ERROR - Error fetching or processing Tranco whitelist
+Traceback (most recent call last):
+  File "c:\Users\user\OneDrive\Desktop\AIFinalProject\cronjob.py", line 81, in <module>
+    response.raise_for_status()
+  File "C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 503 Server Error: Service Unavailable for url: https://tranco-list.eu/top-1m-id?subdomains=true
+2025-04-13 13:40:10,044 - INFO - Spamhaus: 0 new CIDRs
+2025-04-13 13:40:10,044 - INFO - No new CIDRs to add.
+2025-04-13 13:40:10,045 - INFO - No new domains to add to Whitelist.
+2025-04-13 13:40:10,045 - INFO - Appended 538 total new URLs to Blacklist
