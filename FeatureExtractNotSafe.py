@@ -420,7 +420,8 @@ def extract_external_features(url, openpagerank_api_key=api_key):
 
     return features
 
-totalfeat=[]
+
+totalfeat = []
 
 with open("PhishingLink\\Blacklist.txt") as black:
     black_list = black.readlines()
@@ -428,9 +429,10 @@ with open("PhishingLink\\Blacklist.txt") as black:
 for i in black_list[:20000]:
     urlfeat = extract_url_features(i.strip())
     Htmlfeat = extract_full_feature_set(i.strip())
-    Exfeat=extract_external_features(i.strip())
-    result={'isPhishing':True}
-    totalfeat+=[{**urlfeat,**Htmlfeat,**Exfeat,**result}]
+    Exfeat = extract_external_features(i.strip())
+    result = {"isPhishing": True}
+    totalfeat += [{**urlfeat, **Htmlfeat, **Exfeat, **result}]
+print("blacklist added")
 
 with open("PhishingLink\\Whitelist.txt") as white:
     white_list = white.readlines()
@@ -438,12 +440,17 @@ with open("PhishingLink\\Whitelist.txt") as white:
 for i in white_list[:20000]:
     urlfeat = extract_url_features(i.strip())
     Htmlfeat = extract_full_feature_set(i.strip())
-    Exfeat=extract_external_features(i.strip())
-    result={'isPhishing':False}
-    totalfeat+=[{**urlfeat,**Htmlfeat,**Exfeat,**result}]
-    
+    Exfeat = extract_external_features(i.strip())
+    result = {"isPhishing": False}
+    totalfeat += [{**urlfeat, **Htmlfeat, **Exfeat, **result}]
+print("whitelist added")
 if totalfeat:
-    with open("PhishingLink\\FeaturesColumn.csv", mode="w", newline="", encoding="utf-8") as f:
+    with open(
+        "PhishingLink\\FeaturesColumn.csv", mode="w", newline="", encoding="utf-8"
+    ) as f:
         writer = csv.DictWriter(f, fieldnames=totalfeat[0].keys())
         writer.writeheader()
         writer.writerows(totalfeat)
+        print("code works")
+else:
+    print("code does NOT work")
