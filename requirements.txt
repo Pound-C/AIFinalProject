@@ -1,0 +1,6 @@
+requests
+beautifulsoup4
+tldextract
+python-whois
+python-dotenv
+pandas
