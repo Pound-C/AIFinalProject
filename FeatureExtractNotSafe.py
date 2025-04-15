@@ -514,7 +514,7 @@ with open(os.path.join("PhishingLink", "Blacklist.txt")) as black:
     black_list = black.readlines()
     random.shuffle(black_list)
 
-for idx, i in enumerate(black_list[:500]):
+for idx, i in enumerate(black_list[:1000]):
     urlfeat = extract_url_features(i.strip())
     Htmlfeat = extract_full_feature_set(i.strip())
     Exfeat = extract_external_features(i.strip())
@@ -531,7 +531,7 @@ with open(os.path.join("PhishingLink", "Whitelist.txt")) as white:
     white_list = white.readlines()
     random.shuffle(white_list)
 
-for idx, i in enumerate(white_list[:500]):
+for idx, i in enumerate(white_list[:1000]):
     urlfeat = extract_url_features(i.strip())
     Htmlfeat = extract_full_feature_set(i.strip())
     Exfeat = extract_external_features(i.strip())
