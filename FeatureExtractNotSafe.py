@@ -509,21 +509,21 @@ def extract_external_features(url, openpagerank_api_key=api_key):
 
 totalfeat = []
 
-# with open(os.path.join("PhishingLink", "Blacklist.txt")) as black:
-#     black_list = black.readlines()
+with open(os.path.join("PhishingLink", "Blacklist.txt")) as black:
+    black_list = black.readlines()
 
-# for idx, i in enumerate(black_list[:20000]):
-#     urlfeat = extract_url_features(i.strip())
-#     Htmlfeat = extract_full_feature_set(i.strip())
-#     Exfeat = extract_external_features(i.strip())
-# if None in [urlfeat, Htmlfeat, Exfeat]:
-#     print(f"skipping {i}")
-#     continue
-#     result = {"isPhishing": True}
-#     totalfeat += [{**urlfeat, **Htmlfeat, **Exfeat, **result}]
-#     if idx % 5 == 0:
-#         print(f"[+] Processed black {idx} lines")
-# print("blacklist done")
+for idx, i in enumerate(black_list[:20000]):
+    urlfeat = extract_url_features(i.strip())
+    Htmlfeat = extract_full_feature_set(i.strip())
+    Exfeat = extract_external_features(i.strip())
+    if None in [urlfeat, Htmlfeat, Exfeat]:
+        print(f"skipping {i}")
+        continue
+    result = {"isPhishing": True}
+    totalfeat += [{**urlfeat, **Htmlfeat, **Exfeat, **result}]
+    if idx % 5 == 0:
+        print(f"[+] Processed black {idx} lines")
+print("blacklist done")
 
 with open(os.path.join("PhishingLink", "Whitelist.txt")) as white:
     white_list = white.readlines()
@@ -538,7 +538,7 @@ for idx, i in enumerate(white_list[:10000]):
     result = {"isPhishing": False}
     totalfeat += [{**urlfeat, **Htmlfeat, **Exfeat, **result}]
     if idx % 5 == 0:
-        print(f"[+] Processed white {idx} lines", end="\r")
+        print(f"[+] Processed white {idx} lines")
 
 if totalfeat:
     with open(
