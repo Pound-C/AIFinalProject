@@ -31,3 +31,41 @@ requests.exceptions.HTTPError: 503 Server Error: Service Unavailable for url: ht
 2025-04-13 13:40:10,044 - INFO - No new CIDRs to add.
 2025-04-13 13:40:10,045 - INFO - No new domains to add to Whitelist.
 2025-04-13 13:40:10,045 - INFO - Appended 538 total new URLs to Blacklist
+2025-04-14 00:00:02,846 - INFO - OpenPhish: 350 new URLs
+2025-04-14 00:00:03,309 - INFO - PhishStats: 91 new URLs
+2025-04-14 00:00:04,877 - ERROR - Error fetching or processing Tranco whitelist
+Traceback (most recent call last):
+  File "C:\Users\user\OneDrive\Desktop\AIFinalProject\cronjob.py", line 81, in <module>
+    response.raise_for_status()
+  File "C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 503 Server Error: Service Unavailable for url: https://tranco-list.eu/top-1m-id?subdomains=true
+2025-04-14 00:00:05,010 - INFO - Spamhaus: 0 new CIDRs
+2025-04-14 00:00:05,010 - INFO - No new CIDRs to add.
+2025-04-14 00:00:05,010 - INFO - No new domains to add to Whitelist.
+2025-04-14 00:00:05,012 - INFO - Appended 354 total new URLs to Blacklist
+2025-04-14 16:33:19,670 - INFO - OpenPhish: 279 new URLs
+2025-04-14 16:33:20,131 - INFO - PhishStats: 156 new URLs
+2025-04-14 16:33:22,092 - ERROR - Error fetching or processing Tranco whitelist
+Traceback (most recent call last):
+  File "C:\Users\user\OneDrive\Desktop\AIFinalProject\cronjob.py", line 81, in <module>
+    response.raise_for_status()
+  File "C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 503 Server Error: Service Unavailable for url: https://tranco-list.eu/top-1m-id?subdomains=true
+2025-04-14 16:33:22,194 - INFO - Spamhaus: 0 new CIDRs
+2025-04-14 16:33:22,194 - INFO - No new CIDRs to add.
+2025-04-14 16:33:22,196 - INFO - No new domains to add to Whitelist.
+2025-04-14 16:33:22,197 - INFO - Appended 307 total new URLs to Blacklist
+2025-04-15 00:00:01,451 - INFO - OpenPhish: 457 new URLs
+2025-04-15 00:00:01,860 - INFO - PhishStats: 42 new URLs
+2025-04-15 00:00:03,082 - ERROR - Error fetching or processing Tranco whitelist
+Traceback (most recent call last):
+  File "C:\Users\user\OneDrive\Desktop\AIFinalProject\cronjob.py", line 81, in <module>
+    response.raise_for_status()
+  File "C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 503 Server Error: Service Unavailable for url: https://tranco-list.eu/top-1m-id?subdomains=true
+2025-04-15 00:00:03,274 - INFO - Spamhaus: 6 new CIDRs
+2025-04-15 00:00:03,274 - INFO - No new domains to add to Whitelist.
+2025-04-15 00:00:03,275 - INFO - Appended 457 total new URLs to Blacklist
