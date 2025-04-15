@@ -88,74 +88,7 @@ def extract_url_features(url):
 
     features = {}
     if url is None:
-        errordict = {}
-        special_chars = [
-            ".",
-            "-",
-            "@",
-            "?",
-            "&",
-            "|",
-            "=",
-            "_",
-            "~",
-            "%",
-            "/",
-            "*",
-            ":",
-            ",",
-            ";",
-            "$",
-            " ",
-        ]
-        for i, char in enumerate(special_chars, start=4):
-            errordict[f"f{i}_count_{repr(char)}"] = None
-        errordict1 = {
-            "url_length": None,
-            "f1_url_length": None,
-            "f2_hostname_length": None,
-            "f3_ip_in_url": None,
-        }
-        errordictcombined = {**errordict1, **errordict}
-        errordictcombined["f21_www_count"] = None
-        errordictcombined["f22_com_count"] = None
-        errordictcombined["f23_http_count"] = None
-        errordictcombined["f24_double_slash"] = None
-        errordictcombined["f25_https"] = None
-        errordictcombined["f26_digit_ratio_url"] = None
-        errordictcombined["f27_digit_ratio_host"] = None
-        errordictcombined["f28_punycode"] = None
-        errordictcombined["f29_port_in_url"] = None
-        errordictcombined["f30_tld_in_path"] = None
-        errordictcombined["f31_tld_in_subdomain"] = None
-        errordictcombined["f32_abnormal_subdomain"] = None
-        errordictcombined["f33_num_subdomains"] = None
-        errordictcombined["f34_prefix_suffix"] = None
-        errordictcombined["f35_random_domain"] = None
-        errordictcombined["f36_shortening_service"] = None
-        errordictcombined["f37_suspicious_extension"] = None
-
-        errordictcombined["f38_redirect_count"] = None
-        errordictcombined["f39_external_redirect"] = None
-        errordictcombined["f40_word_count"] = None
-        errordictcombined["f41_char_repeat"] = None
-        errordictcombined["f42_shortest_word_url"] = None
-        errordictcombined["f43_shortest_word_host"] = None
-        errordictcombined["f44_shortest_word_path"] = None
-        errordictcombined["f45_longest_word_url"] = None
-        errordictcombined["f46_longest_word_host"] = None
-        errordictcombined["f47_longest_word_path"] = None
-        errordictcombined["f48_avg_word_url"] = None
-        errordictcombined["f49_avg_word_host"] = None
-        errordictcombined["f50_avg_word_path"] = None
-        errordictcombined["f51_phish_hints"] = None
-        errordictcombined["f52_brand_in_domain"] = None
-        errordictcombined["f53_brand_in_subdomain"] = None
-        errordictcombined["f54_brand_in_path"] = None
-        errordictcombined["f55_suspicious_tld"] = None
-        errordictcombined["f56_known_malicious_ip"] = None
-
-        return errordictcombined
+        return None
     parsed = urlparse(url)
     ext = tldextract.extract(url)
 
@@ -327,7 +260,6 @@ def extract_url_features(url):
     with open("PhishingLink\\knownip.txt", "r") as f:
         known_malicious_ips = [line.strip() for line in f if line.strip()]
     features["f56_known_malicious_ip"] = int(hostname in known_malicious_ips)
-    features["error_feature"] = False
 
     return features
 
@@ -355,33 +287,7 @@ def extract_full_feature_set(url):
 
         url = get_working_url(domain_only)
         if not url:
-            return {
-                "f57_total_links": None,
-                "f58_ratio_internal_links": None,
-                "f59_ratio_external_links": None,
-                "f60_ratio_null_links": None,
-                "f61_external_css": None,
-                "f62_internal_redirects": None,
-                "f63_external_redirects": None,
-                "f64_internal_errors": None,
-                "f65_external_errors": None,
-                "f66_login_forms": None,
-                "f67_external_favicon": None,
-                "f68_links_in_tags": None,
-                "f69_submit_to_email": None,
-                "f70_internal_media": None,
-                "f71_external_media": None,
-                "f72_empty_forms": None,
-                "f73_invisible_iframes": None,
-                "f74_popups": None,
-                "f75_safe_anchors": None,
-                "f76_disable_right_click": None,
-                "f77_onmouseover_rightclick": None,
-                "f78_empty_title": None,
-                "f79_domain_in_title": None,
-                "f80_domain_in_copyright": None,
-                "error_feature1": True,
-            }
+            return None
 
         response = requests.get(url, timeout=10)
         html = response.text
@@ -493,37 +399,11 @@ def extract_full_feature_set(url):
             "f78_empty_title": empty_title,
             "f79_domain_in_title": has_domain_in_title,
             "f80_domain_in_copyright": domain_in_copyright,
-            "error_feature1": False,
         }
 
     except Exception as e:
-        return {
-            "f57_total_links": None,
-            "f58_ratio_internal_links": None,
-            "f59_ratio_external_links": None,
-            "f60_ratio_null_links": None,
-            "f61_external_css": None,
-            "f62_internal_redirects": None,
-            "f63_external_redirects": None,
-            "f64_internal_errors": None,
-            "f65_external_errors": None,
-            "f66_login_forms": None,
-            "f67_external_favicon": None,
-            "f68_links_in_tags": None,
-            "f69_submit_to_email": None,
-            "f70_internal_media": None,
-            "f71_external_media": None,
-            "f72_empty_forms": None,
-            "f73_invisible_iframes": None,
-            "f74_popups": None,
-            "f75_safe_anchors": None,
-            "f76_disable_right_click": None,
-            "f77_onmouseover_rightclick": None,
-            "f78_empty_title": None,
-            "f79_domain_in_title": None,
-            "f80_domain_in_copyright": None,
-            "error_feature1": True,
-        }
+        return None
+
 
 def extract_external_features(url, openpagerank_api_key=api_key):
     features = {}
@@ -554,16 +434,7 @@ def extract_external_features(url, openpagerank_api_key=api_key):
         url = get_working_url(domain_only)
         hostname = urlparse(url).hostname
         if hostname is None:
-            return {
-                "f81_whois_registered": None,
-                "f82_registration_years": None,
-                "f83_domain_age_days": None,
-                "f84_web_traffic": None,
-                "f85_dns_record": None,
-                "f86_google_indexed": None,
-                "f87_pagerank": None,
-                "error_feature3": True,
-            }
+            return None
 
         # f81: WHOIS registered
         try:
@@ -630,11 +501,9 @@ def extract_external_features(url, openpagerank_api_key=api_key):
                 features["f87_pagerank"] = -1
         else:
             features["f87_pagerank"] = -1
-        features["error_feature3"] = False
 
     except Exception as e:
-        features["error_feature3"] = True
-
+        return None
     return features
 
 
@@ -647,6 +516,9 @@ totalfeat = []
 #     urlfeat = extract_url_features(i.strip())
 #     Htmlfeat = extract_full_feature_set(i.strip())
 #     Exfeat = extract_external_features(i.strip())
+# if None in [urlfeat, Htmlfeat, Exfeat]:
+#     print(f"skipping {i}")
+#     continue
 #     result = {"isPhishing": True}
 #     totalfeat += [{**urlfeat, **Htmlfeat, **Exfeat, **result}]
 #     if idx % 5 == 0:
@@ -660,11 +532,13 @@ for idx, i in enumerate(white_list[:10000]):
     urlfeat = extract_url_features(i.strip())
     Htmlfeat = extract_full_feature_set(i.strip())
     Exfeat = extract_external_features(i.strip())
+    if None in [urlfeat, Htmlfeat, Exfeat]:
+        print(f"skipping {i}")
+        continue
     result = {"isPhishing": False}
     totalfeat += [{**urlfeat, **Htmlfeat, **Exfeat, **result}]
-    print(totalfeat, end='\r')
     if idx % 5 == 0:
-        print(f"[+] Processed white {idx} lines", end='\r')
+        print(f"[+] Processed white {idx} lines", end="\r")
 
 if totalfeat:
     with open(
