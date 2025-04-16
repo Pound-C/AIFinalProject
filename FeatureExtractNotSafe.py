@@ -282,6 +282,27 @@ def extract_full_feature_set(url):
                 continue
         return None
 
+    def count_resource_errors(soup, domain_url):
+        internal_errors = 0
+        external_errors = 0
+        for tag in soup.find_all(["img", "script", "link"]):
+            attr = "src" if tag.name != "link" else "href"
+            if tag.has_attr(attr):
+                resource_url = urljoin(domain_url, tag[attr])
+                try:
+                    r = requests.head(resource_url, timeout=5)
+                    if r.status_code >= 400:
+                        if domain_url in resource_url:
+                            internal_errors += 1
+                        else:
+                            external_errors += 1
+                except:
+                    if domain_url in resource_url:
+                        internal_errors += 1
+                    else:
+                        external_errors += 1
+        return internal_errors/(internal_errors+external_errors), external_errors/(internal_errors+external_errors)
+
     try:
         parsed = tldextract.extract(url)
         domain_only = ".".join(part for part in [parsed.domain, parsed.suffix] if part)
@@ -301,8 +322,7 @@ def extract_full_feature_set(url):
         external_links = 0
         null_links = 0
         safe_anchors = 0
-        internal_errors = 0
-        external_errors = 0
+        internal_errors, external_errors = count_resource_errors(soup, url)
 
         for link in links:
             href = link["href"]

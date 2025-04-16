@@ -71,7 +71,7 @@ try:
 except Exception as e:
     logging.exception("Error fetching from PhishStats")
 
-# Pull Whitelist from Tranco-list (Often Broke)
+# Pull Whitelist from Tranco-list (Often Broke) P.S We have another source like majestic million we can use but the API is limited and paid access so for the sake of our budget we will not use it
 try:
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
@@ -161,8 +161,8 @@ if len(actually_new) == 0:
 
 # Log Total URL appended (whitelist + blacklist + CIDRS)
 if new_whitelist_count:
-    print(f"Added {new_whitelist_count} new domains to {whitelist_output_path}")
-    logging.info(f"Appended {new_whitelist_count} total new domains to Whitelist")
+    print(f"Added {len(new_whitelist_count)} new domains to {whitelist_output_path}")
+    logging.info(f"Appended {len(new_whitelist_count)} total new domains to Whitelist")
 else:
     print("No new domains added to Whitelist.")
     logging.info("No new domains to add to Whitelist.")
