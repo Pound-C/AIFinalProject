@@ -14,7 +14,7 @@ import csv
 
 load_dotenv()
 
-api_key = os.getenv("OR_api_key")
+# api_key = os.getenv("OR_api_key")
 
 def get_working_url(domain):
         protocols = ["https://", "http://"]
@@ -45,15 +45,9 @@ def check_redirects(url):
         internal_redirect = redirected and (original_domain == final_domain)
         external_redirect = redirected and (original_domain != final_domain)
 
-        return {
-            "f38_redirect_count": len(response.history),
-            "f39_external_redirect": int(external_redirect),
-        }
+        return len(response.history),int(external_redirect)
     except Exception as e:
-        return {
-            "f38_redirect_count": None,
-            "f39_external_redirect": None,
-        }
+        return None,None
 
 
 def extract_url_features(url):
@@ -68,7 +62,7 @@ def extract_url_features(url):
     hostname = parsed.hostname if parsed.hostname else ""
 
     # f1-2: URL and hostname length
-    features["url_length"] = full_url
+    features["url"] = full_url
     features["f1_url_length"] = len(full_url)
     features["f2_hostname_length"] = len(hostname)
 
@@ -169,10 +163,7 @@ def extract_url_features(url):
     )
 
     # f38–f39: Redirects (hardcoded as example – requires content-based check for real)
-    features["f38_redirect_count"] = check_redirects(full_url)["f38_redirect_count"]
-    features["f39_external_redirect"] = check_redirects(full_url)[
-        "f39_external_redirect"
-    ]
+    features["f38_redirect_count"], features["f39_external_redirect"]  = check_redirects(full_url)
 
     # f40–f50: NLP features (stub only)
     words = re.findall(r"\w+", full_url)
@@ -208,23 +199,40 @@ def extract_url_features(url):
     )
 
     # f51: Sensitive keywords (phishing hints)
-    hints = ["verify", "update", "account", "secure", "bank", "signin", "login"]
-    features["f51_phish_hints"] = sum(hint in full_url.lower() for hint in hints)
+    hints = [
+        "verify", "update", "account", "secure", "bank", "signin", "login", "password", "confirm",
+        "relogin", "reset", "billing", "unlock", "validate", "alert", "security", "suspend", "important",
+        "notification", "claim", "limited", "urgent", "payment", "invoice", "credential", "token",
+        "authentication", "recover", "access", "identity", "support", "id", "otp"
+    ]
+    features["f51_phish_hints"] = sum(
+    bool(re.search(rf"\b{hint}\b", full_url.lower())) for hint in hints
+    )
 
     # f52–f54: Brand domains
-    brand_list = ["paypal", "apple", "amazon", "facebook", "google", "netflix"]
-    features["f52_brand_in_domain"] = int(
-        any(brand in ext.domain for brand in brand_list)
-    )
-    features["f53_brand_in_subdomain"] = int(
-        any(brand in ext.subdomain for brand in brand_list)
-    )
-    features["f54_brand_in_path"] = int(
-        any(brand in parsed.path for brand in brand_list)
-    )
+    brand_list = [
+    "adobe", "airbnb", "alibaba", "amazon", "americanexpress", "apple", "bankofamerica", "bbc", "binance",
+    "bitbucket", "bloomberg", "booking", "chase", "citibank", "cloudflare", "cnn", "coinbase", "digitalocean",
+    "dropbox", "ebay", "expedia", "facebook", "forbes", "github", "godaddy", "google", "hsbc", "icloud",
+    "instagram", "intuit", "linkedin", "mailchimp", "microsoft", "netflix", "nintendo", "nytimes",
+    "office365", "outlook", "paypal", "pinterest", "quora", "reddit", "samsung", "skyscanner", "slack",
+    "snapchat", "sony", "spotify", "steam", "stripe", "telegram", "tiktok", "trivago", "tumblr", "twitter",
+    "uber", "wechat", "wellsfargo", "whatsapp", "yahoo", "yandex", "zendesk", "zoom"
+]
+
+    def match_brand(part, brand_list):
+        tokens = re.split(r"[.\-_/]", part.lower())
+        return any(brand.lower() in tokens for brand in brand_list)
+
+    features["f52_brand_in_domain"] = int(match_brand(ext.domain, brand_list))
+    features["f53_brand_in_subdomain"] = int(match_brand(ext.subdomain, brand_list))
+    features["f54_brand_in_path"] = int(match_brand(parsed.path, brand_list))
 
     # f55: Suspicious TLDs
-    suspicious_tlds = ["tk", "ml", "ga", "cf", "gq", "cn", "ru"]
+    suspicious_tlds = [
+    "tk", "ml", "ga", "cf", "gq", "cn", "ru", "top", "xyz", "buzz", "work", "fit", "win", "review", "country", "party", 'link'
+]
+
     features["f55_suspicious_tld"] = int(tld in suspicious_tlds)
 
     # f56: Statistical report (placeholder)
@@ -303,21 +311,23 @@ def extract_full_feature_set(url):
         external_media = len(media_tags) - internal_media
 
         # Forms
-        login_forms = sum(
-            1
+        suspicious_actions = {"", "#", "#nothing", "#doesnotexist", "#null", "#void", "#whatever", "#content",
+            "javascript::void(0)", "javascript::void(0);", "javascript::;", "javascript"
+        }
+
+        login_forms = int(any(
+            f.get("action", "").strip().lower() in suspicious_actions or
+            any(k in f.get("action", "").lower() for k in ["login", "signin", "verify"])
             for f in soup.find_all("form")
-            if any(
-                k in f.get("action", "").lower() for k in ["login", "signin", "verify"]
-            )
-        )
-        empty_forms = sum(
-            1
+        ))
+        empty_forms = int(any(
+            f.get("action", "").strip().lower() in ["", "about:blank"]
             for f in soup.find_all("form")
-            if f.get("action", "") in ["", "about:blank"]
-        )
-        submit_to_email = sum(
-            1 for f in soup.find_all("form") if "mailto:" in f.get("action", "")
-        )
+        ))
+        submit_to_email = int(any(
+            "mailto:" in f.get("action", "").lower() or "mail()" in f.get("action", "").lower()
+            for f in soup.find_all("form")
+        ))
 
         # Title and copyright
         title = soup.title.string.strip() if soup.title else ""
@@ -326,15 +336,15 @@ def extract_full_feature_set(url):
         domain_in_copyright = int(domain in soup.get_text().lower())
 
         # iframes
-        invisible_iframes = sum(
-            1
+        invisible_iframes = int(any(
+            "display:none" in i.get("style", "").lower() or
+            "visibility:hidden" in i.get("style", "").lower()
             for i in soup.find_all("iframe")
-            if "display:none" in i.get("style", "")
-            or "visibility:hidden" in i.get("style", "")
-        )
-
+        ))
         # JS unsafe interaction
-        disable_right_click = int("onmousedown" in html)
+        disable_right_click = int(
+            "onmousedown" in html.lower() or "oncontextmenu" in html.lower()
+        )
         onmouseover_right_click = int("event.button==2" in html)
 
         # Favicon
@@ -363,7 +373,7 @@ def extract_full_feature_set(url):
             "f71_external_media": external_media,
             "f72_empty_forms": empty_forms,
             "f73_invisible_iframes": invisible_iframes,
-            "f74_popups": html.count("window.alert"),
+            "f74_popups":  int("window.open" in html or "window.alert" in html),
             "f75_safe_anchors": safe_anchors,
             "f76_disable_right_click": disable_right_click,
             "f77_onmouseover_rightclick": onmouseover_right_click,
@@ -376,7 +386,7 @@ def extract_full_feature_set(url):
         return None
 
 
-def extract_external_features(url, openpagerank_api_key=api_key):
+def extract_external_features(url):#, openpagerank_api_key=api_key):
     features = {}
     try:
         hostname = urlparse(url).hostname
@@ -402,7 +412,7 @@ def extract_external_features(url, openpagerank_api_key=api_key):
                 creation = creation[0]
 
             delta = (expiration - creation).days / 365 if expiration and creation else 0
-            features["f82_registration_years"] = round(delta, 2)
+            features["f82_registration_years"] = int(delta)
         except:
             features["f82_registration_years"] = 0
 
@@ -417,37 +427,37 @@ def extract_external_features(url, openpagerank_api_key=api_key):
             features["f83_domain_age_days"] = 0
 
         # f84: Web traffic (Not directly accessible from Alexa anymore)
-        features["f84_web_traffic"] = -1  # -1 means unknown, deprecated via Alexa
+        # features["f84_web_traffic"] = -1  # -1 means unknown, deprecated via Alexa
 
         # f85: DNS record present
         try:
             socket.gethostbyname(hostname)
-            features["f85_dns_record"] = 1
+            features["f84_dns_record"] = 1
         except socket.error:
-            features["f85_dns_record"] = 0
+            features["f84_dns_record"] = 0
 
         # f86: Google index (basic method using site: query)
-        google_query = f"https://www.google.com/search?q=site:{hostname}"
-        headers = {"User-Agent": "Mozilla/5.0"}
-        response = requests.get(google_query, headers=headers, timeout=5)
-        features["f86_google_indexed"] = int(
-            "did not match any documents" not in response.text.lower()
-        )
+        # google_query = f"https://www.google.com/search?q=site:{hostname}"
+        # headers = {"User-Agent": "Mozilla/5.0"}
+        # response = requests.get(google_query, headers=headers, timeout=5)
+        # features["f86_google_indexed"] = int(
+        #     "did not match any documents" not in response.text.lower()
+        # )
 
-        # f87: PageRank via OpenPageRank API (Optional)
-        if openpagerank_api_key:
-            pr_response = requests.get(
-                "https://openpagerank.com/api/v1.0/getPageRank",
-                headers={"API-OPR": openpagerank_api_key},
-                params={"domains[]": hostname},
-            )
-            if pr_response.status_code == 200:
-                rank = pr_response.json()["response"][0].get("page_rank_integer", -1)
-                features["f87_pagerank"] = rank
-            else:
-                features["f87_pagerank"] = -1
-        else:
-            features["f87_pagerank"] = -1
+        # # f87: PageRank via OpenPageRank API (Optional)
+        # if openpagerank_api_key:
+        #     pr_response = requests.get(
+        #         "https://openpagerank.com/api/v1.0/getPageRank",
+        #         headers={"API-OPR": openpagerank_api_key},
+        #         params={"domains[]": hostname},
+        #     )
+        #     if pr_response.status_code == 200:
+        #         rank = pr_response.json()["response"][0].get("page_rank_integer", -1)
+        #         features["f87_pagerank"] = rank
+        #     else:
+        #         features["f87_pagerank"] = -1
+        # else:
+        #     features["f87_pagerank"] = -1
 
     except Exception as e:
         return None
@@ -505,3 +515,9 @@ if totalfeat:
         print("code works")
 else:
     print("code does NOT work")
+
+# url="00000000-0000-0000-0000-000000000000.redinuid.imrworldwide.com"
+# parsed = tldextract.extract(url)
+# domain_only = ".".join(part for part in [parsed.subdomain, parsed.domain, parsed.suffix] if part)
+# url = get_working_url(domain_only)
+# print(url)
