@@ -16,34 +16,25 @@ load_dotenv()
 
 api_key = os.getenv("OR_api_key")
 
+def get_working_url(domain):
+        protocols = ["https://", "http://"]
+        headers = {"User-Agent": "Mozilla/5.0"}
+
+        for proto in protocols:
+            url = proto + domain
+            try:
+                response = requests.head(
+                    url, timeout=5, allow_redirects=True, headers=headers
+                )
+                if response.status_code < 400:
+                    return url
+            except (requests.exceptions.SSLError, requests.exceptions.ConnectionError):
+                continue
+        return None
+
 
 def check_redirects(url):
     try:
-
-        def get_working_url(domain):
-            protocols = ["https://", "http://"]
-            headers = {"User-Agent": "Mozilla/5.0"}
-
-            for proto in protocols:
-                url = proto + domain
-                try:
-                    response = requests.head(
-                        url, timeout=5, allow_redirects=True, headers=headers
-                    )
-                    if response.status_code < 400:
-                        return url
-                except (
-                    requests.exceptions.SSLError,
-                    requests.exceptions.ConnectionError,
-                ):
-                    continue
-            return None
-
-        parsed = tldextract.extract(url)
-        domain_only = ".".join(part for part in [parsed.domain, parsed.suffix] if part)
-
-        url = get_working_url(domain_only)
-
         original_domain = tldextract.extract(url).registered_domain
         response = requests.get(url, timeout=10, allow_redirects=True)
 
@@ -66,27 +57,6 @@ def check_redirects(url):
 
 
 def extract_url_features(url):
-    def get_working_url(domain):
-        protocols = ["https://", "http://"]
-        headers = {"User-Agent": "Mozilla/5.0"}
-
-        for proto in protocols:
-            url = proto + domain
-            try:
-                response = requests.head(
-                    url, timeout=5, allow_redirects=True, headers=headers
-                )
-                if response.status_code < 400:
-                    return url
-            except (requests.exceptions.SSLError, requests.exceptions.ConnectionError):
-                continue
-        return None
-
-    parsed = tldextract.extract(url)
-    domain_only = ".".join(part for part in [parsed.domain, parsed.suffix] if part)
-
-    url = get_working_url(domain_only)
-
     features = {}
     if url is None:
         return None
@@ -266,22 +236,6 @@ def extract_url_features(url):
 
 
 def extract_full_feature_set(url):
-    def get_working_url(domain):
-        protocols = ["https://", "http://"]
-        headers = {"User-Agent": "Mozilla/5.0"}
-
-        for proto in protocols:
-            url = proto + domain
-            try:
-                response = requests.head(
-                    url, timeout=5, allow_redirects=True, headers=headers
-                )
-                if response.status_code < 400:
-                    return url
-            except (requests.exceptions.SSLError, requests.exceptions.ConnectionError):
-                continue
-        return None
-
     def count_resource_errors(soup, domain_url):
         internal_errors = 0
         external_errors = 0
@@ -304,11 +258,7 @@ def extract_full_feature_set(url):
         return internal_errors/(internal_errors+external_errors), external_errors/(internal_errors+external_errors)
 
     try:
-        parsed = tldextract.extract(url)
-        domain_only = ".".join(part for part in [parsed.domain, parsed.suffix] if part)
-
-        url = get_working_url(domain_only)
-        if not url:
+        if url is None:
             return None
 
         response = requests.get(url, timeout=10)
@@ -429,30 +379,6 @@ def extract_full_feature_set(url):
 def extract_external_features(url, openpagerank_api_key=api_key):
     features = {}
     try:
-        # Parse domain
-        def get_working_url(domain):
-            protocols = ["https://", "http://"]
-            headers = {"User-Agent": "Mozilla/5.0"}
-
-            for proto in protocols:
-                url = proto + domain
-                try:
-                    response = requests.head(
-                        url, timeout=5, allow_redirects=True, headers=headers
-                    )
-                    if response.status_code < 400:
-                        return url
-                except (
-                    requests.exceptions.SSLError,
-                    requests.exceptions.ConnectionError,
-                ):
-                    continue
-            return None
-
-        parsed = tldextract.extract(url)
-        domain_only = ".".join(part for part in [parsed.domain, parsed.suffix] if part)
-
-        url = get_working_url(domain_only)
         hostname = urlparse(url).hostname
         if hostname is None:
             return None
@@ -552,11 +478,14 @@ with open(os.path.join("PhishingLink", "Whitelist.txt")) as white:
     random.shuffle(white_list)
 
 for idx, i in enumerate(white_list[:1000]):
-    urlfeat = extract_url_features(i.strip())
-    Htmlfeat = extract_full_feature_set(i.strip())
-    Exfeat = extract_external_features(i.strip())
+    parsed = tldextract.extract(i)
+    domain_only = ".".join(part for part in [parsed.domain, parsed.suffix] if part)
+    url = get_working_url(domain_only)
+    urlfeat = extract_url_features(url.strip())
+    Htmlfeat = extract_full_feature_set(url.strip())
+    Exfeat = extract_external_features(url.strip())
     if None in [urlfeat, Htmlfeat, Exfeat]:
-        print(f"skipping {i}")
+        print(f"skipping {url}")
         continue
     result = {"isPhishing": False}
     totalfeat += [{**urlfeat, **Htmlfeat, **Exfeat, **result}]
