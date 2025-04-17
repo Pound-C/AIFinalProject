@@ -262,7 +262,9 @@ def extract_full_feature_set(url):
                         internal_errors += 1
                     else:
                         external_errors += 1
-        return internal_errors/(internal_errors+external_errors), external_errors/(internal_errors+external_errors)
+        if (internal_errors+external_errors)!=0:
+            return internal_errors/(internal_errors+external_errors), external_errors/(internal_errors+external_errors)
+        else:return 0,0
 
     try:
         if url is None:
@@ -462,7 +464,6 @@ def extract_external_features(url):#, openpagerank_api_key=api_key):
         return None
     return features
 
-
 totalfeat = []
 
 with open(os.path.join("PhishingLink", "Blacklist.txt")) as black:
@@ -515,8 +516,8 @@ if totalfeat:
 else:
     print("code does NOT work")
 
-# url="00000000-0000-0000-0000-000000000000.redinuid.imrworldwide.com"
-# parsed = tldextract.extract(url)
-# domain_only = ".".join(part for part in [parsed.subdomain, parsed.domain, parsed.suffix] if part)
-# url = get_working_url(domain_only)
-# print(url)
+url="00000000-0000-0000-0000-000000000000.redinuid.imrworldwide.com"
+parsed = tldextract.extract(url)
+domain_only = ".".join(part for part in [parsed.subdomain, parsed.domain, parsed.suffix] if part)
+url = get_working_url(domain_only)
+print(url)
