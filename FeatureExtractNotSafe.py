@@ -1,5 +1,5 @@
 import re
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 import tldextract
 import socket
 import requests
@@ -10,7 +10,6 @@ import os
 import random
 from dotenv import load_dotenv
 import csv
-
 
 load_dotenv()
 
@@ -489,7 +488,7 @@ with open(os.path.join("PhishingLink", "Whitelist.txt")) as white:
 
 for idx, i in enumerate(white_list[:1000]):
     parsed = tldextract.extract(i)
-    domain_only = ".".join(part for part in [parsed.domain, parsed.suffix] if part)
+    domain_only = ".".join(part for part in [parsed.subdomain ,parsed.domain, parsed.suffix] if part)
     url = get_working_url(domain_only)
     urlfeat = extract_url_features(url.strip())
     Htmlfeat = extract_full_feature_set(url.strip())
