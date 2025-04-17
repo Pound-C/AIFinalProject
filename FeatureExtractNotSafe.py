@@ -516,8 +516,8 @@ if totalfeat:
 else:
     print("code does NOT work")
 
-url="00000000-0000-0000-0000-000000000000.redinuid.imrworldwide.com"
-parsed = tldextract.extract(url)
-domain_only = ".".join(part for part in [parsed.subdomain, parsed.domain, parsed.suffix] if part)
-url = get_working_url(domain_only)
-print(url)
+# url="00000000-0000-0000-0000-000000000000.redinuid.imrworldwide.com"
+# parsed = tldextract.extract(url)
+# domain_only = ".".join(part for part in [parsed.subdomain, parsed.domain, parsed.suffix] if part)
+# url = get_working_url(domain_only)
+# print(url)
