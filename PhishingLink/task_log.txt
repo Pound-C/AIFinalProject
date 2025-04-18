@@ -95,3 +95,16 @@ requests.exceptions.HTTPError: 503 Server Error: Service Unavailable for url: ht
 2025-04-17 00:00:08,720 - INFO - Spamhaus: 1 new CIDRs
 2025-04-17 00:00:08,721 - INFO - No new domains to add to Whitelist.
 2025-04-17 00:00:08,722 - INFO - Appended 581 total new URLs to Blacklist
+2025-04-18 00:00:01,843 - INFO - OpenPhish: 490 new URLs
+2025-04-18 00:00:02,303 - INFO - PhishStats: 486 new URLs
+2025-04-18 00:00:27,395 - INFO - Tranco: 2586 new URLs
+2025-04-18 00:00:27,541 - INFO - Spamhaus: 6 new CIDRs
+2025-04-18 00:00:27,542 - INFO - Appended 2586 total new domains to Whitelist
+2025-04-18 00:00:27,543 - INFO - Appended 956 total new URLs to Blacklist
+2025-04-18 12:00:02,896 - INFO - OpenPhish: 489 new URLs
+2025-04-18 12:00:03,364 - INFO - PhishStats: 505 new URLs
+2025-04-18 12:00:08,967 - INFO - Tranco: 2873 new URLs
+2025-04-18 12:00:09,107 - INFO - Spamhaus: 0 new CIDRs
+2025-04-18 12:00:09,107 - INFO - No new CIDRs to add.
+2025-04-18 12:00:09,107 - INFO - Appended 2873 total new domains to Whitelist
+2025-04-18 12:00:09,108 - INFO - Appended 823 total new URLs to Blacklist

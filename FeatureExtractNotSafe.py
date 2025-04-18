@@ -1,5 +1,6 @@
 import re
 from urllib.parse import urlparse, urljoin
+from requests.exceptions import SSLError, ConnectionError, ReadTimeout
 import tldextract
 import socket
 import requests
@@ -16,20 +17,20 @@ load_dotenv()
 # api_key = os.getenv("OR_api_key")
 
 def get_working_url(domain):
-        protocols = ["https://", "http://"]
-        headers = {"User-Agent": "Mozilla/5.0"}
+    protocols = ["https://", "http://"]
+    headers = {"User-Agent": "Mozilla/5.0"}
 
-        for proto in protocols:
-            url = proto + domain
-            try:
-                response = requests.head(
-                    url, timeout=5, allow_redirects=True, headers=headers
-                )
-                if response.status_code < 400:
-                    return url
-            except (requests.exceptions.SSLError, requests.exceptions.ConnectionError):
-                continue
-        return None
+    for proto in protocols:
+        url = proto + domain
+        try:
+            response = requests.head(
+                url, timeout=5, allow_redirects=True, headers=headers
+            )
+            if response.status_code < 400:
+                return url
+        except (SSLError, ConnectionError, ReadTimeout, requests.exceptions.RequestException):
+            continue  # Try the next protocol
+    return None
 
 
 def check_redirects(url):
@@ -469,8 +470,8 @@ totalfeat = []
 with open(os.path.join("PhishingLink", "Blacklist.txt")) as black:
     black_list = black.readlines()
     random.shuffle(black_list)
-
-for idx, i in enumerate(black_list[:1000]):
+count_black = 0
+for idx, i in enumerate(black_list):
     urlfeat = extract_url_features(i.strip())
     Htmlfeat = extract_full_feature_set(i.strip())
     Exfeat = extract_external_features(i.strip())
@@ -479,18 +480,24 @@ for idx, i in enumerate(black_list[:1000]):
         continue
     result = {"isPhishing": True}
     totalfeat += [{**urlfeat, **Htmlfeat, **Exfeat, **result}]
-    if idx % 5 == 0:
-        print(f"[+] Processed black {idx} lines")
+    count_black += 1
+    if count_black % 5 == 0:
+        print(f"[+] Processed black {count_black} lines")
+    if count_black == 1000:
+        print('Feature Extraction is done');break
 print("blacklist done")
 
 with open(os.path.join("PhishingLink", "Whitelist.txt")) as white:
     white_list = white.readlines()
     random.shuffle(white_list)
-
-for idx, i in enumerate(white_list[:1000]):
+count=0
+for idx, i in enumerate(white_list):
     parsed = tldextract.extract(i)
     domain_only = ".".join(part for part in [parsed.subdomain ,parsed.domain, parsed.suffix] if part)
     url = get_working_url(domain_only)
+    if url is None:
+        print(f"skipping {i}")
+        continue
     urlfeat = extract_url_features(url.strip())
     Htmlfeat = extract_full_feature_set(url.strip())
     Exfeat = extract_external_features(url.strip())
@@ -499,8 +506,12 @@ for idx, i in enumerate(white_list[:1000]):
         continue
     result = {"isPhishing": False}
     totalfeat += [{**urlfeat, **Htmlfeat, **Exfeat, **result}]
-    if idx % 5 == 0:
-        print(f"[+] Processed white {idx} lines")
+    count+=1
+    if count % 5 == 0:
+        print(f"[+] Processed white {count} lines")
+    if count == 1000:
+        print('Feature Extraction is done')
+        break
 
 if totalfeat:
     with open(
